@@ -32,7 +32,7 @@ npm i --save "https://gitlab+deploy-token-128922:Rphf6qiyyExysinbznqD@gitlab.com
 subprocess example
 </h3>
 
-```
+```javascript
 // parent.js
 const assert = require("assert");
 const { CreateProcessSRConfig, CommunicateManager } = require("communite_helper");
@@ -45,7 +45,7 @@ manager.add_listener("test", function() {
 manager.init(); // start listening reequest !IMPORTANT
 manager.send_request("subprocess", "a", "b").then((data) => { assert(data === "HI"); })
 ```
-```
+```javascript
 // subprocess.js
 
 const { CreateProcessSRConfig, CommunicateManager } = require("communite_helper");
@@ -58,12 +58,12 @@ manager.add_listener("subprocess", function(a, b) {
 manager.init(); // start listening reequest !IMPORTANT
 ```
 
-<hr>
+<hr><hr>
 <h3 style="text-align: center" id="http_example">
 http example
 </h3>
 
-```
+```javascript
 const assert = require("assert");
 const { CommunicateManager } = require("communite_helper");
 const { CreateReceiver, CreateSender } = require("communite_helper").Http;
@@ -119,6 +119,7 @@ create sender/receiver library
 * [Socket](#Socket)
 * [Http](#Http)
 
+<hr><hr>
 <h3 id="CreateProcessSRConfig1">
 function CreateProcessSRConfig(filename, args, options)
 </h3>
@@ -132,6 +133,7 @@ function CreateProcessSRConfig(filename, args, options)
 
 * return SRConfig class
 
+<hr><hr>
 <h3 id="CreateProcessSRConfig2">
 function CreateProcessSRConfig(process)
 </h3>
@@ -144,7 +146,7 @@ function CreateProcessSRConfig(process)
 * return SRConfig class
 
 
-
+<hr><hr>
 <h3 id="CommunicateManager">
 class CommunicateManager
 </h3>
@@ -219,6 +221,7 @@ CommunicateManager.prototype.close()
 
 * close sender and receiver
 
+<hr><hr>
 <h3 id="SRConfig">
 class SRConfig
 </h3>
@@ -265,6 +268,7 @@ SRConfig.prototype.close()
 
 * close Sender/Receiver
 
+<hr><hr>
 <h3 id="SenderConfig">
 class SenderConfig
 </h3>
@@ -290,6 +294,7 @@ SenderConfig.prototype.close()
 
 * close [Sender](#Sender)
 
+<hr><hr>
 <h3 id="ReceiverConfig">
 class ReceiverConfig
 </h3>
@@ -315,6 +320,7 @@ ReceiverConfig.prototype.close()
 
 * close [Receiver](#Receiver)
 
+<hr><hr>
 <h3 id="Sender">
 class Sender
 </h3>
@@ -367,6 +373,7 @@ Sender.prototype.close()
 
 * close sender
 
+<hr><hr>
 <h3 id="Receiver">
 class Receiver
 </h3>
@@ -410,6 +417,7 @@ Receiver.prototype.close()
 
 * close Receiver
 
+<hr><hr>
 <h3 id="Socket">
 library Socket
 </h3>
@@ -447,7 +455,7 @@ Socket.CreateReceiver(process, serialized)
 
 * receive from socket.io
 
-
+<hr><hr>
 <h3 id="Http">
 library Http
 </h3>
@@ -471,7 +479,7 @@ Http.CreateSender(server, prefix)
 <tr><td>prefix</td><td>string</td><td>send url prefix, ex: "/my/url/prefix"</td></tr>
 </table>
 
-* send from socket.io
+* send from http
 
 <h4 id="Http_CreateReceiver">
 Http.CreateReceiver(url, headers={}, timeout=3000)
@@ -484,4 +492,4 @@ Http.CreateReceiver(url, headers={}, timeout=3000)
 <tr><td>timeout</td><td>number</td><td>mark disconnect when timeout(ms)</td></tr>
 </table>
 
-* receive from socket.io
+* receive from http
