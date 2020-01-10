@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { CreateHttpReceiver, CreateHttpSender } = require("../index");
+const { CreateReceiver, CreateSender } = require("../index").Http;
 
 const http = require("http");
 
@@ -8,8 +8,8 @@ const port = 23284;
 
 const prefix = "/test/123";
 
-const receiver = CreateHttpReceiver(server, prefix);
-var sender = CreateHttpSender(`http://127.0.0.1:${port}${prefix}`);
+const receiver = CreateReceiver(server, prefix);
+var sender = CreateSender(`http://127.0.0.1:${port}${prefix}`);
 
 var promise_list = [];
 
@@ -28,7 +28,7 @@ server.listen(port, async function() {
     receiver.add_listener("bbb", ()=>{});
     receiver.add_listener("ccc", ()=>{});
     receiver.init();
-    var sender = CreateHttpSender(`http://127.0.0.1:${port}${prefix}`);
+    var sender = CreateSender(`http://127.0.0.1:${port}${prefix}`);
     sender.import_jobs(jobs);
     sender.connect();
     try {

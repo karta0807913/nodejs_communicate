@@ -1,5 +1,6 @@
 const assert = require("assert");
-const { CreateHttpReceiver, CreateHttpSender, CommunicateManager } = require("../index");
+const { CommunicateManager } = require("../index");
+const { CreateReceiver, CreateSender } = require("../index").Http;
 const { create_promise, unit_test } = require("./manager_test");
 
 const http = require("http");
@@ -9,8 +10,8 @@ const port = 23284;
 
 const prefix = "/test/123";
 
-const receiver = CreateHttpReceiver(server, prefix);
-const sender = CreateHttpSender(`http://127.0.0.1:${port}${prefix}`);
+const receiver = CreateReceiver(server, prefix);
+const sender = CreateSender(`http://127.0.0.1:${port}${prefix}`);
 
 server.listen(port, async () => {
 
@@ -18,7 +19,7 @@ server.listen(port, async () => {
     try {
         // simulate server stop when uncatch exception happened
         await receiver.init();
-        while(await sender.connect());
+        while(!await sender.connect());
         server.close();
 
         var { reslove, promise } = create_promise(1000);

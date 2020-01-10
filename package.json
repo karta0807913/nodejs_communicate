@@ -1,14 +1,11 @@
 {
   "name": "communite_helper",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "process communite, can use tcp, socket.io or subprocess",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "bash ./test/test.bash"
   },
   "author": "xian",
-  "license": "ISC",
-  "dependencies": {
-    "socket.io": "^2.3.0"
-  }
+  "license": "ISC"
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in *.js */;
+for i in $(dirname $0)/*.js $(dirname $0)/*/;
 do
     echo "start testing $i"
     node "$i";
