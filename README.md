@@ -31,7 +31,8 @@ npm i --save "https://gitlab+deploy-token-128922:Rphf6qiyyExysinbznqD@gitlab.com
 <h3 style="text-align: center" id="subprocess_example">
 subprocess example
 </h3>
-```javascript
+
+```
 // parent.js
 const assert = require("assert");
 const { CreateProcessSRConfig, CommunicateManager } = require("communite_helper");
@@ -44,7 +45,7 @@ manager.add_listener("test", function() {
 manager.init(); // start listening reequest !IMPORTANT
 manager.send_request("subprocess", "a", "b").then((data) => { assert(data === "HI"); })
 ```
-```javascript
+```
 // subprocess.js
 
 const { CreateProcessSRConfig, CommunicateManager } = require("communite_helper");
@@ -61,7 +62,8 @@ manager.init(); // start listening reequest !IMPORTANT
 <h3 style="text-align: center" id="http_example">
 http example
 </h3>
-```javascript
+
+```
 const assert = require("assert");
 const { CommunicateManager } = require("communite_helper");
 const { CreateReceiver, CreateSender } = require("communite_helper").Http;
@@ -127,6 +129,7 @@ function CreateProcessSRConfig(filename, args, options)
 <tr><td>args</td><td>array</td><td>fork args</td></tr>
 <tr><td>options</td><td>Object</td><td><div>fork options</div><div>options.env.NODE_PATH default <span class="str">"communite_helper_path/../.."</span></div></td></tr>
 </table>
+
 * return SRConfig class
 
 <h3 id="CreateProcessSRConfig2">
@@ -137,6 +140,7 @@ function CreateProcessSRConfig(process)
 <tr><td></td><td></td><td></td></tr>
 <tr><td>process</td><td>EventEmitter</td><td>process instance</td></tr>
 </table>
+
 * return SRConfig class
 
 
@@ -144,10 +148,12 @@ function CreateProcessSRConfig(process)
 <h3 id="CommunicateManager">
 class CommunicateManager
 </h3>
-- create process receiver/sender
+
+* create process receiver/sender
 
 <h5 style="margin: 0; margin-left: 10px" id="CommunicateManager_funcs">
 functions</h5>
+
 * [constructor(sender, receiver)](#CommunicateManager_construct1)
 * [constructor(srconfig)](#CommunicateManager_construct2)
   * [init(instance)](#CommunicateManager_init)
@@ -185,36 +191,43 @@ CommunicateManager.prototype.init(instance)
 <tr><td></td><td></td><td></td></tr>
 <tr><td>instance</td><td>boolean</td><td>return functions call</td></tr>
 </table>
+
 * init, try connect and start receiving request
 * if instance is true, return a Object: { "function_name": function } when connected
 
 <h4 id="CommunicateManager_add_listener">
 CommunicateManager.prototype.add_listener(event, ...args)
 </h4>
+
 * a wrapper for sender.add_listener
 
 <h4 id="CommunicateManager_send_request">
 CommunicateManager.prototype.send_request(event, ...args)
 </h4>
+
 * a wrapper for receiver.send_request
 
 <h4 id="CommunicateManager_on_disconnect">
 CommunicateManager.prototype.on_disconnect(callback)
 </h4>
+
 * a wrapper for sender.on_disconnect
 
 <h4 id="CommunicateManager_close">
 CommunicateManager.prototype.close()
 </h4>
+
 * close sender and receiver
 
 <h3 id="SRConfig">
 class SRConfig
 </h3>
-- config for create sender/receiver
+
+* config for create sender/receiver
 
 <h5 style="margin: 0; margin-left: 10px" id="SRConfig_funcs">
 functions</h5>
+
 * [constructor()](#SRConfig_construct)
   * [createReceiver()](#SRConfig_createReceiver)
   * [createSender()](#SRConfig_createSender)
@@ -225,11 +238,13 @@ functions</h5>
 <h4 id="SRConfig_createReceiver">
 SRConfig.prototype.createReceiver()
 </h4>
+
 * create [Receiver](#Receiver)
 
 <h4 id="SRConfig_createSender">
 SRConfig.prototype.createSender()
 </h4>
+
 * create [Sender](#Sender)
 
 <h4 id="SRConfig_toReceiverConfig">
@@ -240,21 +255,25 @@ SRConfig.prototype.toReceiverConfig()
 <h4 id="SRConfig_toSenderConfig">
 SRConfig.prototype.toSenderConfig()
 </h4>
+
 * return [SenderConfig](#SenderConfig)
 
 
 <h4 id="SRConfig_close">
 SRConfig.prototype.close()
 </h4>
+
 * close Sender/Receiver
 
 <h3 id="SenderConfig">
 class SenderConfig
 </h3>
-- config for create sender
+
+* config for create sender
 
 <h5 style="margin: 0; margin-left: 10px" id="SenderConfig_funcs">
 functions</h5>
+
 * [constructor()](#SenderConfig_construct)
   * [create()](#SenderConfig_create)
   * [close()](#SenderConfig_close)
@@ -262,20 +281,24 @@ functions</h5>
 <h4 id="SenderConfig_create">
 SenderConfig.prototype.create()
 </h4>
+
 * create [Sender](#Sender)
 
 <h4 id="SenderConfig_close">
 SenderConfig.prototype.close()
 </h4>
+
 * close [Sender](#Sender)
 
 <h3 id="ReceiverConfig">
 class ReceiverConfig
 </h3>
-- config for create receiver
+
+* config for create receiver
 
 <h5 style="margin: 0; margin-left: 10px" id="ReceiverConfig_funcs">
 functions</h5>
+
 * [constructor()](#ReceiverConfig_construct)
   * [create()](#ReceiverConfig_create)
   * [close()](#ReceiverConfig_close)
@@ -283,20 +306,24 @@ functions</h5>
 <h4 id="ReceiverConfig_create">
 ReceiverConfig.prototype.create()
 </h4>
+
 * create [Receiver](#Receiver)
 
 <h4 id="ReceiverConfig_close">
 ReceiverConfig.prototype.close()
 </h4>
+
 * close [Receiver](#Receiver)
 
 <h3 id="Sender">
 class Sender
 </h3>
-- send message to remote server
+
+* send message to remote server
 
 <h5 style="margin: 0; margin-left: 10px" id="Sender_funcs">
 functions</h5>
+
 * [constructor(serialized)](#Sender_construct)
   * [connect()](#Sender_connect)
   * [send_request(event, ...args)](#Sender_send_request)
@@ -317,31 +344,38 @@ new Sender(serialized)
 <h4 id="Sender_connect">
 Sender.prototype.connect()
 </h4>
+
 * try connect to remote
+* return true: connect or not 
 
 <h4 id="Sender_send_request">
 Sender.prototype.send_request(event, ...args)
 </h4>
+
 * if connect is false, will buffered request and call [connect](#Sender_connect)
 * send_request event to remote with args
 
 <h4 id="Sender_on_disconnect">
 Sender.prototype.on_disconnect(error)
 </h4>
+
 * callback when request raise error or close called
 
 <h4 id="Sender_close">
 Sender.prototype.close()
 </h4>
+
 * close sender
 
 <h3 id="Receiver">
 class Receiver
 </h3>
-- receive message from remote
+
+* receive message from remote
 
 <h5 style="margin: 0; margin-left: 10px" id="Receiver_funcs">
 functions</h5>
+
 * [constructor(serialized)](#Receiver_construct)
   * [init()](#Receiver_init)
   * [add_listener(event, ...args)](#Receiver_add_listener)
@@ -361,25 +395,30 @@ new Receiver(serialized)
 <h4 id="Receiver_init">
 Receiver.prototype.init()
 </h4>
+
 * start receive request from remote
 
 <h4 id="Receiver_add_listener">
 Receiver.prototype.add_listener()
 </h4>
+
 * add event listener
 
 <h4 id="Receiver_close">
 Receiver.prototype.close()
 </h4>
+
 * close Receiver
 
 <h3 id="Socket">
 library Socket
 </h3>
-- receive/send message from Socket
+
+* receive/send message from Socket
 
 <h5 style="margin: 0; margin-left: 10px" id="Receiver_funcs">
 functions</h5>
+
 * [CreateReceiver(socket, serialized)](#Socket_CreateReceiver)
 * [CreateSender(socket, serialized)](#Socket_CreateSender)
 
@@ -393,6 +432,7 @@ Socket.CreateSender(socket, serialized)
 <tr><td>serisocketalized</td><td>socket.io</td><td>socket.io instance</td></tr>
 <tr><td>serialized</td><td>serialized</td><td>can be null</td></tr>
 </table>
+
 * send from socket.io
 
 <h4 id="Socket_CreateReceiver">
@@ -404,16 +444,19 @@ Socket.CreateReceiver(process, serialized)
 <tr><td>serisocketalized</td><td>socket.io</td><td>socket.io instance</td></tr>
 <tr><td>serialized</td><td>serialized</td><td>can be null</td></tr>
 </table>
+
 * receive from socket.io
 
 
 <h3 id="Http">
 library Http
 </h3>
-- receive/send message from Http
+
+* receive/send message from Http
 
 <h5 style="margin: 0; margin-left: 10px" id="Receiver_funcs">
 functions</h5>
+
 * [CreateReceiver(server, prefix)](#Http_CreateReceiver)
 * [CreateSender(url, headers={}, timeout=3000)](#Http_CreateSender)
 
@@ -427,6 +470,7 @@ Http.CreateSender(server, prefix)
 <tr><td>server</td><td>EventEmitter</td><td>native http server / express server instance</td></tr>
 <tr><td>prefix</td><td>string</td><td>send url prefix, ex: "/my/url/prefix"</td></tr>
 </table>
+
 * send from socket.io
 
 <h4 id="Http_CreateReceiver">
@@ -439,4 +483,5 @@ Http.CreateReceiver(url, headers={}, timeout=3000)
 <tr><td>headers</td><td>Object</td><td>can be null</td></tr>
 <tr><td>timeout</td><td>number</td><td>mark disconnect when timeout(ms)</td></tr>
 </table>
+
 * receive from socket.io
