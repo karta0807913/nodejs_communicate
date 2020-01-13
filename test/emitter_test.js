@@ -18,5 +18,6 @@ class ProcessReceiverConfig extends ReceiverConfig {
 }
 
 var manager = new CommunicateManager(new ProcessSenderConfig(), new ProcessReceiverConfig());
-unit_test(manager);
-manager.close();
+unit_test(manager).then(()=> {
+    manager.close();
+});

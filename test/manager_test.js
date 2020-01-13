@@ -26,10 +26,10 @@ async function unit_test(manager) {
         return data;
     });
     var res = manager.send_request("test", "HI");
-    var res1 = await promise;
-    assert.equal(res1, "HI");
-    res = await res;
+    var [res, res1] = await Promise.all([ res, promise ]);
+
     assert.equal(res, "HI");
+    assert.equal(res1, "HI");
 
     var { reslove, promise } = create_promise(1000);
     manager.add_listener("test1", (data,data1,data2) => {
