@@ -1,30 +1,23 @@
 const { CommunicateManager, Socket, Adapter } = require("../index");
-
 const server = require('http').createServer();
 const io = require('socket.io')(server);
-const { unit_test } = require("./manager_test");
-
 const port = 19274;
 const client = require("socket.io-client")(`http://localhost:${port}`);
+const { unit_test } = require("./manager_test");
 
 const topic = "" + Math.random();
 
-io.on("connection", async function(socket) {
-    let server_adapter = new Adapter.SocketIOAdapter(socket, topic);
-    let server_sender = new Socket.CreateSender(server_adapter);
+
+server.listen(port, async ()=> {
+    const server_adapter = new Adapter.SocketServerAdapter(io, topic);
+    const server_sender = Socket.CreateSender(server_adapter);
     server_sender.retry_connect_time = 100;
-    let server_receiver = new Socket.CreateReceiver(server_adapter);
+    const server_receiver = Socket.CreateReceiver(server_adapter);
 
-    let client_adapter = new Adapter.SocketIOAdapter(client, topic);
-    let client_sender = new Socket.CreateSender(client_adapter);
+    const client_adapter = new Adapter.SocketIOAdapter(client, topic);
+    const client_sender = Socket.CreateSender(client_adapter);
     client_sender.retry_connect_time = 100;
-    let client_receiver = new Socket.CreateReceiver(client_adapter);
-
-    // socket.use(function(...args) {
-    //     console.log(args);
-    //     console.log(args[0][1]);
-    //     args[args.length - 1]();
-    // });
+    const client_receiver = Socket.CreateReceiver(client_adapter);
 
     try {
         console.log("test client send to server");
@@ -43,5 +36,3 @@ io.on("connection", async function(socket) {
         server.close();
     }
 });
-
-server.listen(port);
