@@ -15,7 +15,7 @@ class EventReceiver extends Events.Receiver {
         if(this.secret !== secret) {
             throw new Error("Please Check Secret");
         }
-        return this._init;
+        return super.__connect();
     }
 }
 
