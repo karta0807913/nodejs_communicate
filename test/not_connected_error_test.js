@@ -32,7 +32,6 @@ async function run() {
     equal(result, "HI");
     sender.close();
     receiver.close();
-
 }
 
 run();

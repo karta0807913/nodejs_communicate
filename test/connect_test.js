@@ -24,10 +24,6 @@ class EventSender extends Events.Sender {
         super(adapter, serialized);
         this.secret = secret;
     }
-
-    async _connect() {
-        return await super._connect(this.secret);
-    }
 }
 
 const adapter = new Adapter.EventAdapter(emitter);
@@ -35,6 +31,7 @@ const secret = Math.random();
 const receiver = new EventReceiver(adapter, secret);
 const wrong_sender = new EventSender(adapter, Math.random());
 const sender = new EventSender(adapter, secret);
+sender.set_connect_args(secret);
 
 const manager = new CommunicateManager(sender, receiver);
 

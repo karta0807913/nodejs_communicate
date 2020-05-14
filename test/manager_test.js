@@ -52,7 +52,7 @@ async function unit_test(manager) {
         res = await manager.send_request("test122", 1,2,3);
         assert(false, "must throw error");
     } catch(error) {
-        if(error.message !== "request event not defined") {
+        if(error.message !== "request event \"test122\" not defined") {
             throw error;
         }
     }
