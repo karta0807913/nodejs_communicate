@@ -21,10 +21,25 @@ server.listen(port, async ()=> {
     server_sender.retry_connect_time = 100;
     const server_receiver = Socket.CreateReceiver(server_adapter);
 
+    let resolve, reject;
+    const promise = new Promise((s, r) => {
+        resolve = s;
+        reject = r;
+        setTimeout(()=>r("next_all timeout, please check SocketServerAuthAdapter"), 1000);
+    });
     server_adapter.connection_callback((socket)=> {
-        equal(socket.id, client1.id);
+        try {
+            equal(socket.id, client1.id);
+        } catch(error) {
+            reject(error);
+        }
         socket.on("HI", (msg)=> {
-            equal(msg, client1_client_msg);
+            try {
+                equal(msg, client1_client_msg);
+                resolve();
+            } catch(error) {
+                reject(error);
+            }
             client1.close();
         });
     });
@@ -33,17 +48,22 @@ server.listen(port, async ()=> {
     const client_sender = Socket.CreateSender(client_adapter);
     client_sender.retry_connect_time = 100;
     const client_receiver = Socket.CreateReceiver(client_adapter);
+    const client_server_manager = new CommunicateManager(client_sender, server_receiver);
+    const server_client_manager = new CommunicateManager(server_sender, client_receiver);
 
     try {
         console.log("test auth client send to auth server");
-        await unit_test(new CommunicateManager(client_sender, server_receiver));
+        await unit_test(client_server_manager);
         console.log("test auth server send to auth client");
-        await unit_test(new CommunicateManager(server_sender, client_receiver));
+        await unit_test(server_client_manager);
+        await promise;
         console.log("test finish");
     } catch(error) {
         console.log(error);
         process.exit(1);
     } finally {
+        client_server_manager.close();
+        server_client_manager.close();
         server_sender.close();
         server_receiver.close();
         client_sender.close();
