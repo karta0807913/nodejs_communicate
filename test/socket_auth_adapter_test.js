@@ -13,8 +13,8 @@ client1.emit("HI", client1_client_msg);
 
 const { unit_test } = require("./manager_test");
 
+let flag = false;
 server.listen(port, async ()=> {
-
 
     const server_adapter = new Adapter.SocketServerAuthAdapter(io, topic, secret);
     const server_sender = Socket.CreateSender(server_adapter);
@@ -27,6 +27,10 @@ server.listen(port, async ()=> {
         reject = r;
         setTimeout(()=>r("next_all timeout, please check SocketServerAuthAdapter"), 1000);
     });
+    client1.on(topic, (...data)=> {
+        console.log(data);
+        reject("other people listen the data");
+    });
     server_adapter.connection_callback((socket)=> {
         try {
             equal(socket.id, client1.id);
@@ -36,11 +40,14 @@ server.listen(port, async ()=> {
         socket.on("HI", (msg)=> {
             try {
                 equal(msg, client1_client_msg);
-                resolve();
+                if(flag) {
+                    resolve();
+                } else {
+                    flag = true;
+                }
             } catch(error) {
                 reject(error);
             }
-            client1.close();
         });
     });
 
@@ -56,6 +63,11 @@ server.listen(port, async ()=> {
         await unit_test(client_server_manager);
         console.log("test auth server send to auth client");
         await unit_test(server_client_manager);
+        if(flag) {
+            resolve();
+        } else {
+            flag = true;
+        }
         await promise;
         console.log("test finish");
     } catch(error) {
@@ -69,5 +81,6 @@ server.listen(port, async ()=> {
         client_sender.close();
         client_receiver.close();
         server.close();
+        client1.close();
     }
 });
