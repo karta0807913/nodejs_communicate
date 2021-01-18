@@ -25,7 +25,7 @@ Communicate implement <span style="color:#0000ff">http</span>, <span style="colo
 
 ## Installation
 ```bash
-npm i --save "https://gitlab+deploy-token-128922:Rphf6qiyyExysinbznqD@gitlab.com/publiclib/communicate"
+npm i --save "https://github.com/karta0807913/nodejs_communicate"
 ```
 <h2 id="Usage"> Usage </h2>
 <h3 style="text-align: center" id="subprocess_example">
