@@ -20,9 +20,8 @@ export default class Receiver {
     });
   }
 
-  async init(): Promise<boolean> {
+  init(): void {
     this._init = true;
-    return true;
   }
 
   __connect(..._: any[]): boolean {

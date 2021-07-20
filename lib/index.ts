@@ -203,7 +203,7 @@ class CommunicateManager extends EventEmitter {
   async init(instance: true | RemoteMethods): Promise<RemoteMethods | boolean>;
   async init(instance: boolean | RemoteMethods = false): Promise<RemoteMethods | boolean> {
     if (this.is_close()) Promise.reject(new Error("Connection Already Closed"));
-    await this.receiver.init();
+    this.receiver.init();
     if (!await this.sender.connect()) {
       return false;
     }
@@ -221,7 +221,7 @@ class CommunicateManager extends EventEmitter {
   }
 
   async send_request(event: string, ...args: any[]) {
-    await this.receiver.init();
+    this.receiver.init();
     return this.sender.send_request(event, ...args);
   }
 
