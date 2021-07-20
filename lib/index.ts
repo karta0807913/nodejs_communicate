@@ -251,10 +251,7 @@ class CommunicateManager extends EventEmitter {
   }
 }
 
-export interface EnvironmentMap {
-  [key: string]: string;
-}
-function ForkProcess(filename: string, args?: readonly string[], options: { env?: EnvironmentMap } = {}) {
+function ForkProcess(filename: string, args?: readonly string[], options: cp.ForkOptions = {}) {
   if (!options.env) {
     options.env = {};
   }
@@ -264,9 +261,9 @@ function ForkProcess(filename: string, args?: readonly string[], options: { env?
   return cp.fork(filename, args, options);
 }
 
-function CreateProcessSRConfig(filename: string, args: readonly string[], options?: { env?: EnvironmentMap }): ProcessSRConfig;
+function CreateProcessSRConfig(filename: string, args: readonly string[], options?: cp.ForkOptions): ProcessSRConfig;
 function CreateProcessSRConfig(process: NodeJS.Process | cp.ChildProcess): ProcessSRConfig;
-function CreateProcessSRConfig(filename: NodeJS.Process | cp.ChildProcess | string, args?: readonly string[], options?: { env?: EnvironmentMap }): ProcessSRConfig {
+function CreateProcessSRConfig(filename: NodeJS.Process | cp.ChildProcess | string, args?: readonly string[], options?: cp.ForkOptions): ProcessSRConfig {
   if (filename instanceof EventEmitter) {
     return new ProcessSRConfig(filename);
   }
