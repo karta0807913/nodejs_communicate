@@ -1,12 +1,12 @@
 import * as assert from "assert";
 import Serialization, { Response, ErrorResponse } from "./serialization";
-import { NotConnectedError, MethodNotExistError, MethodNotImplementError } from "./Errors";
+import { NotConnectedError, MethodNotExistError } from "./Errors";
 
 export default class Receiver {
-  serialized: Serialization;
-  _listening: Map<string, Function>;
-  _init: boolean;
-  _is_connect: boolean;
+  protected serialized: Serialization;
+  private _listening: Map<string, Function>;
+  private _init: boolean;
+  private _is_connect: boolean;
 
   constructor(serialized: Serialization = new Serialization()) {
     this.serialized = serialized;
@@ -25,12 +25,12 @@ export default class Receiver {
     return true;
   }
 
-  __connect(...args: any[]) {
+  __connect(..._: any[]): boolean {
     this._is_connect = this._init;
     return this._init;
   }
 
-  add_listener(event_name: Function | string, func?: Function) {
+  add_listener(event_name: Function | string, func?: Function): void {
     if (event_name instanceof Function) {
       assert(event_name.name !== "", "need named function");
       func = event_name;
@@ -41,11 +41,11 @@ export default class Receiver {
     this._listening.set(event_name, func);
   }
 
-  remove_listener(event_name: string) {
+  remove_listener(event_name: string): void {
     this._listening.delete(event_name);
   }
 
-  disconnected() {
+  disconnected(): void {
     this._is_connect = false;
   }
 
@@ -53,15 +53,15 @@ export default class Receiver {
   async _emit(obj: any): Promise<ErrorResponse | Response> {
     let result: any;
     try {
-      var request = this.serialized.decode_request(obj);
-      var func = this._listening.get(request.event);
+      let request = this.serialized.decode_request(obj);
+      let target_function = this._listening.get(request.event);
       if (!this._is_connect && request.event !== "__connect") {
         throw new NotConnectedError("Not Connect");
       }
-      if (!func) {
+      if (!target_function) {
         throw new MethodNotExistError(`request event "${request.event}" not defined`);
       }
-      result = await func(...request.dataset);
+      result = await target_function(...request.dataset);
     } catch (error) {
       result = error;
     }
@@ -69,17 +69,7 @@ export default class Receiver {
     return response
   }
 
-  /**
-   * implement and call _emit method when event is fired
-   * for example:
-   * let response = await this._emit(args);
-   * socket.send(this.serialized.encode_response(result));
-   **/
-  async _listener(...args: any[]): Promise<void> {
-    throw new MethodNotImplementError("method not implement");
-  }
-
-  close() {
+  close(): void {
     this._listening.clear();
     this._init = false;
   }

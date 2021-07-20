@@ -1,7 +1,7 @@
 import { CreateProcessSRConfig, CommunicateManager } from "../../index";
 import { unit_test } from "./util";
 
-const request_args = JSON.parse(process.argv[2]);
+const request_args = JSON.parse(process.argv[2] as string);
 
 async function main() {
   var config = CreateProcessSRConfig(process);

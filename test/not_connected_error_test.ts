@@ -1,13 +1,19 @@
 import { deepStrictEqual } from "assert";
 import { EventEmitter } from "events";
 import { Events, Adapter } from "../index";
-import { ErrorResponse } from "../lib/interface/serialization";
+import { ErrorResponse, Response } from "../lib/interface/serialization";
 
 const emitter = new Adapter.EventAdapter(new EventEmitter(), "test-topic");
 
+class PublicSender extends Events.Sender {
+  public override _send_request(request: any): Promise<ErrorResponse | Response> {
+    return super._send_request(request);
+  }
+}
+
 async function run() {
   let receiver = Events.CreateReceiver(emitter);
-  let sender = Events.CreateSender(emitter);
+  let sender = new PublicSender(emitter);
 
   receiver.add_listener("HI", () => {
     return "HI";

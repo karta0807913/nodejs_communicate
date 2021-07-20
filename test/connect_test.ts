@@ -12,7 +12,7 @@ class EventReceiver extends Events.Receiver {
     this.secret = secret;
   }
 
-  __connect(secret: string) {
+  override __connect(secret: string): boolean {
     if (this.secret !== secret) {
       throw new Error("Please Check Secret");
     }
@@ -59,7 +59,7 @@ async function main() {
 
   try {
     await unit_test(manager);
-    await manager.close();
+    manager.close();
   } catch (error) {
     console.log(error);
     process.exit(1);

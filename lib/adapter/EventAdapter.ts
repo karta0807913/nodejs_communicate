@@ -1,7 +1,7 @@
 import { PacketData } from "./Adapter";
 import Adapter from "./Adapter";
 
-export interface Emitter<Event = string> {
+export interface Emitter<Event = string | symbol> {
   on(event: Event, listener: Function): Emitter;
   once(event: Event, listener: Function): Emitter;
   off(event?: Event, listener?: Function): Emitter;
@@ -10,8 +10,8 @@ export interface Emitter<Event = string> {
 }
 
 export default class EventAdapter extends Adapter {
-  emitter: Emitter;
-  topic: string;
+  protected emitter: Emitter;
+  protected topic: string;
 
   constructor(emitter: Emitter, topic: string) {
     super();
@@ -20,11 +20,12 @@ export default class EventAdapter extends Adapter {
     this.listen_topic();
   }
 
-  protected listen_topic() {
+  protected listen_topic(): void {
     this.emitter.on(this.topic, (data: any) => this._listening(data));
   }
 
-  _send_data(dataset: PacketData) {
+  protected _send_data(dataset: PacketData): Promise<void> {
     this.emitter.emit(this.topic, dataset);
+    return Promise.resolve();
   }
 }

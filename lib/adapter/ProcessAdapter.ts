@@ -3,27 +3,32 @@ import EventAdapter from "./EventAdapter";
 import { ChildProcess } from "child_process";
 
 export default class ProcessAdapter extends EventAdapter {
-  process: NodeJS.Process | ChildProcess;
+  override emitter: ChildProcess | NodeJS.Process;
 
-  constructor(process: NodeJS.Process | ChildProcess, exit_callback?: () => void) {
+  constructor(process: ChildProcess, exit_callback?: () => void) {
     super(process, "message");
-    this.process = process;
+    this.emitter = process;
     process.on("exit", () => {
       super.close();
       exit_callback && exit_callback();
     });
   }
 
-  _send_data(data: PacketData) {
-    this.process.send(data);
+  override _send_data(data: PacketData): Promise<void> {
+    if (this.emitter.send) {
+      this.emitter.send(data);
+    } else {
+      return Promise.reject(new Error("no parent process found"));
+    }
+    return Promise.resolve();
   }
 
-  close(signal: NodeJS.Signals = "SIGHUP") {
-    if (!this._close) {
+  override close(signal: NodeJS.Signals = "SIGHUP"): void {
+    if (!this.is_close()) {
       super.close();
-      if (this.process === global.process) {
+      if (this.emitter === global.process) {
       } else {
-        (this.process as ChildProcess).kill(signal);
+        (this.emitter as ChildProcess).kill(signal);
       }
     }
   }

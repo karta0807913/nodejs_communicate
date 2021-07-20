@@ -10,7 +10,7 @@ const prefix = "/test/123";
 const receiver = Http.CreateReceiver(server, prefix);
 let sender = Http.CreateSender(`http://127.0.0.1:${port}${prefix}`);
 
-let promise_list = [];
+let promise_list: Promise<any>[] = [];
 
 promise_list.push(sender.send_request("aaa", "123"));
 promise_list.push(sender.send_request("bbb", "123"));
@@ -22,8 +22,11 @@ assert(temp !== undefined);
 
 let jobs = temp as UnfinishJobs[]
 
+assert(jobs[0] !== undefined)
 assert(jobs[0].request.event === "aaa");
+assert(jobs[1] !== undefined)
 assert(jobs[1].request.event === "bbb");
+assert(jobs[2] !== undefined)
 assert(jobs[2].request.event === "ccc");
 
 server.listen(port, async function() {

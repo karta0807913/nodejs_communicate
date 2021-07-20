@@ -2,7 +2,7 @@ export interface ErrorResponse {
   is_error: boolean;
   name: string;
   message: string;
-  stack: string;
+  stack: string | undefined;
 }
 
 export interface Response {
@@ -43,12 +43,15 @@ export default class Serialization {
   from_response(obj: ErrorResponse | Response): any {
     if (obj.is_error) {
       obj = obj as ErrorResponse
-      function cus_error() { Error.captureStackTrace(this, cus_error); }
-      cus_error.prototype.__proto__ = Error.prototype;
-      cus_error.prototype.name = obj.name;
-      cus_error.prototype.message = obj.message;
+      let error = new Error();
+      // function cus_error() { Error.captureStackTrace(this, cus_error); }
+      // cus_error.prototype.__proto__ = Error.prototype;
+      // cus_error.prototype.name = obj.name;
+      // cus_error.prototype.message = obj.message;
 
-      var error = new cus_error();
+      // let error = new cus_error();
+      error.name = obj.name;
+      error.message = obj.message;
       error.stack = obj.stack || error.stack;
       throw error;
     } else {

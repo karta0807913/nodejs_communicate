@@ -1,12 +1,13 @@
-import { SocketAdapter } from "../adapter/index";
 import serialization from "../http/serialization";
-import Sender from "../interface/Sender";
+import Sender from "../events/Sender";
+import { ErrorResponse, Response } from "../interface/serialization";
+import { SocketAdapter } from "../adapter";
 
-export default class extends Sender {
-  adapter: SocketAdapter;
+export default class SocketSender extends Sender {
+  protected override adapter: SocketAdapter;
 
   constructor(adapter: SocketAdapter, serialized: serialization) {
-    super(serialized);
+    super(adapter, serialized);
     if (!(adapter instanceof SocketAdapter)) {
       throw new TypeError("adapter type");
     }
@@ -14,14 +15,14 @@ export default class extends Sender {
     this.adapter.on_disconnect(this._set_disconnect.bind(this));
   }
 
-  _send_request(data: any) {
+  override _send_request(data: any): Promise<ErrorResponse | Response> {
     if (!this.adapter.is_connected()) {
       throw new TypeError("adapter disconnected");
     }
-    return this.adapter.send_request(data);
+    return super._send_request(data);
   }
 
-  async _connect(...args: any[]): Promise<boolean> {
+  override async _connect(...args: any[]): Promise<boolean> {
     await this.adapter.connect();
     if (this.adapter.is_connected()) {
       try {
@@ -32,10 +33,5 @@ export default class extends Sender {
     } else {
       return false;
     }
-  }
-
-  close(export_buffers: boolean = false) {
-    this.adapter.close();
-    return super.close(export_buffers);
   }
 }

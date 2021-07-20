@@ -1,7 +1,10 @@
 import { CommunicateManager, Socket, Adapter } from "../index";
+import { Server as HttpServer } from "http";
+import { Server as SocketServer } from "socket.io";
 import * as assert from "assert";
-const server = require('http').createServer();
-const io = require('socket.io')(server);
+
+const server = new HttpServer();
+const io = new SocketServer(server);
 
 const port = 19274;
 const client = require("socket.io-client")(`http://localhost:${port}`);
@@ -11,7 +14,7 @@ const topic = "" + Math.random();
 const secret = "~$1n?HZ$l),uP5s6F1`yB&!._Z5e8d";
 
 class Receiver extends Socket.Receiver {
-  __connect(_secret: string) {
+  override __connect(_secret: string): boolean {
     if (_secret !== secret) {
       throw new Error("secret error");
     }
@@ -19,7 +22,7 @@ class Receiver extends Socket.Receiver {
   }
 }
 
-io.on("connection", async function(socket) {
+io.on("connection", async (socket) => {
   let server_adapter = new Adapter.SocketIOAdapter(socket, topic);
   let server_sender = Socket.CreateSender(server_adapter);
   server_sender.retry_connect_time = 100;
@@ -35,7 +38,6 @@ io.on("connection", async function(socket) {
   //     console.log(args[0][1]);
   //     args[args.length - 1]();
   // });
-
   try {
     let server_manager = new CommunicateManager(server_sender, server_receiver);
 

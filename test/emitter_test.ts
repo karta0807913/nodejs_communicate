@@ -6,13 +6,13 @@ import { unit_test } from "./manager_test";
 const emitter = new Adapter.EventAdapter(new EventEmitter(), "test-topic");
 
 class ProcessSenderConfig extends SenderConfig {
-  _create() {
+  override _create() {
     return Events.CreateSender(emitter);
   }
 }
 
 class ProcessReceiverConfig extends ReceiverConfig {
-  _create() {
+  override _create() {
     return Events.CreateReceiver(emitter);
   }
 }

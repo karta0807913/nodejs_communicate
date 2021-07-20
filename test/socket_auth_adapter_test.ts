@@ -1,6 +1,6 @@
 import { deepStrictEqual } from "assert";
 import { CommunicateManager, Socket, Adapter } from "../index";
-import { unit_test } from "./manager_test";
+import { create_promise, unit_test } from "./manager_test";
 
 function communicate_test() {
   const server = require('http').createServer();
@@ -24,13 +24,8 @@ function communicate_test() {
       server_sender.retry_connect_time = 100;
       const server_receiver = Socket.CreateReceiver(server_adapter);
 
-      let resolve, reject;
-      const promise = new Promise((s, r) => {
-        resolve = s;
-        reject = r;
-        setTimeout(() => r("next_all timeout, please check SocketServerAuthAdapter"), 1000);
-      });
-      client1.on(topic, (...data) => {
+      let { resolve, reject, promise } = create_promise(1000);
+      client1.on(topic, (...data: any[]) => {
         console.log(data);
         reject("server message leak, other people can listen the data");
       });

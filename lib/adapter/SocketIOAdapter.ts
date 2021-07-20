@@ -7,12 +7,12 @@ import { Socket as ServerSideSocket } from "socket.io";
 import SocketAdapter from "./SocketAdapter";
 
 export default class SocketIOAdapter extends SocketAdapter {
-  _closed: boolean;
-  emitter: Socket | ServerSideSocket;
+
+  protected override emitter: Socket | ServerSideSocket;
 
   constructor(emitter: Socket | ServerSideSocket, topic: string) {
     super(emitter, topic);
-    this._closed = false;
+    this.emitter = emitter;
     (emitter as Emitter).on("disconnect", () => {
       this.__disconnect();
     });
@@ -22,8 +22,15 @@ export default class SocketIOAdapter extends SocketAdapter {
     });
   }
 
+  id(): string | null {
+    if (this.emitter) {
+      return this.emitter.id;
+    }
+    return null
+  }
+
   async connect(): Promise<boolean> {
-    if (this._closed) return false;
+    if (this.is_close()) return false;
     if (this.emitter.connected) {
       return true;
     }
@@ -35,18 +42,18 @@ export default class SocketIOAdapter extends SocketAdapter {
     });
   }
 
-  _send_data(dataset: PacketData) {
+  override _send_data(dataset: PacketData): Promise<void> {
     if (!this.emitter.connected && dataset.is_request) {
       throw new NotConnectedError("socket not connected");
     }
-    super._send_data(dataset);
+    return super._send_data(dataset);
   }
 
-  is_connected() {
+  is_connected(): boolean {
     return this.emitter.connected;
   }
 
-  close() {
+  override close(): void {
     super.close();
     this.emitter.disconnect();
   }

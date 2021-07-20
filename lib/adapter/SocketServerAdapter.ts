@@ -5,25 +5,29 @@ import { PacketData } from "./Adapter";
 import SocketAdapter from "./SocketAdapter";
 
 export default class SocketServerAdapter extends SocketAdapter {
-  socket: SocketIOAdapter;
-  emitter: Server;
+  protected override emitter: Server;
+  protected socket: SocketIOAdapter | null;
 
   constructor(io: Server, topic: string) {
     super(io, "connection");
     this.topic = topic;
+    this.emitter = io;
     this.socket = null;
   }
 
-  listen_topic() {
+  protected override listen_topic(): void {
     this.emitter.on(this.topic, (socket: Socket) => this._on_socket_connection(socket));
   }
 
-  close() {
+  override close(): void {
     super.close();
     this.emitter.close();
+    if (this.socket) {
+      this.socket.close();
+    }
   }
 
-  _on_socket_connection(socket: Socket): void {
+  protected _on_socket_connection(socket: Socket): void {
     if (this.socket) {
       socket.disconnect();
       return;
@@ -37,19 +41,19 @@ export default class SocketServerAdapter extends SocketAdapter {
     this.__connect();
   }
 
-  on_request(func: Function) {
+  override on_request(func: (dataset: any) => Promise<any>) {
     this._on_request = func;
     this.socket && this.socket.on_request(this._on_request.bind(this));
   }
 
-  _send_data(dataset: PacketData) {
+  protected override _send_data(dataset: PacketData): Promise<void> {
     if (!this.socket) {
       throw new NotConnectedError("socket not connected");
     }
     return this.socket._send_data(dataset);
   }
 
-  _set_disconnect() {
+  protected _set_disconnect(): void {
     this.socket = null;
     this.__disconnect();
   }
@@ -58,11 +62,7 @@ export default class SocketServerAdapter extends SocketAdapter {
     return this.is_connected();
   }
 
-  is_connected() {
+  is_connected(): boolean {
     return this.socket !== null;
-  }
-
-  disconnect() {
-    this.socket && this.socket.emitter.disconnect();
   }
 }

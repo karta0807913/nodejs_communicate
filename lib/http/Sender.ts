@@ -1,6 +1,7 @@
 import Sender from "../interface/Sender";
 import { Response, ErrorResponse } from "../interface/serialization";
 import Serialization from "./serialization";
+import * as http from "http";
 
 export default class extends Sender {
   request: any;
@@ -9,18 +10,19 @@ export default class extends Sender {
   prefix_path: string;
   headers: Map<string, string[]>;
   timeout: number;
-  serialized: Serialization;
+  override serialized: Serialization;
 
   constructor(host: string, headers = {} as Map<string, string[]>, timeout = 3000, serialization: Serialization = new Serialization()) {
     super(serialization);
+    this.serialized = serialization;
     let url = new URL(host);
     this.request = require(url.protocol.slice(0, url.protocol.length - 1));
     this.host = url.hostname;
     if (url.port === "") {
       this.port = (url.protocol === "http") ? "80" : "443";
-
+    } else {
+      this.port = url.port;
     }
-    this.port = this.port || url.port;
     this.prefix_path = url.pathname;
     this.headers = headers;
     this.timeout = timeout;
@@ -38,8 +40,8 @@ export default class extends Sender {
           ...this.headers
         },
         timeout: this.timeout,
-      }, (res) => {
-        let data = [];
+      }, (res: http.IncomingMessage) => {
+        let data: any[] = [];
         res.on('data', (chunk) => {
           data.push(chunk);
         });
@@ -56,7 +58,7 @@ export default class extends Sender {
         });
       });
       req.write(data);
-      req.on("error", (error) => {
+      req.on("error", (error: any) => {
         reject(error);
       });
       req.end();

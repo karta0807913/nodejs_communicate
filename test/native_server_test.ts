@@ -22,17 +22,16 @@ server.listen(port, async () => {
     while (!await sender.connect());
     server.close();
 
-    var { reslove, promise } = create_promise(1000);
+    let { resolve, promise } = create_promise(1000);
 
     // http sender disconnect will trigger after send_request
-    sender.on_disconnect(reslove);
-    var test_promise = sender.send_request("test", "HI");
+    sender.on_disconnect(resolve as (...args: any[]) => void);
+    let test_promise = sender.send_request("test", "HI");
     await promise;
 
     server.listen(port, async () => {
+      let manager = new CommunicateManager(sender, receiver);
       try {
-        var manager = new CommunicateManager(sender, receiver);
-
         manager.on_disconnect((error) => {
           if (error) { console.log(error); }
           process.exit(1);
@@ -44,7 +43,9 @@ server.listen(port, async () => {
         assert(await test_promise === "HI");
 
         let adapter = await manager.init(true);
-        assert(await adapter.test("HI") === "HI");
+        assert(adapter instanceof Object);
+        assert(adapter['test'] !== undefined);
+        assert(await adapter['test']("HI") === "HI");
       } catch (error) {
         console.log(error);
       } finally {

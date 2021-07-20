@@ -5,17 +5,18 @@ import Receiver from "../interface/Receiver";
 export default class extends Receiver {
   prefix: string;
   server: http.Server;
-  serialized: Serialization
+  override serialized: Serialization
 
   constructor(server: http.Server, prefix: string, serialization: Serialization = new Serialization()) {
     super(serialization);
     this.server = server;
+    this.serialized = serialization;
     server.on("request", this._listener.bind(this));
     this.prefix = prefix;
   }
 
-  async _listener(req: http.IncomingMessage, res: http.ServerResponse) {
-    var data = "";
+  protected async _listener(req: http.IncomingMessage, res: http.ServerResponse): Promise<void> {
+    let data = "";
     if (req.url !== this.prefix) {
       return;
     }
@@ -28,7 +29,7 @@ export default class extends Receiver {
     });
   }
 
-  close() {
+  override close(): void {
     super.close();
     this.server.close();
   }

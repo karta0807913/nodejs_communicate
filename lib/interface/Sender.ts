@@ -1,7 +1,7 @@
-import Serialization, { Request, Response, ErrorResponse } from "./serialization";
+import Serialization, { Response, ErrorResponse } from "./serialization";
 import { EventEmitter } from "events";
 
-import { MethodNotImplementError, SenderAlreadyClosedError, ConnectTimeOutError, UserInteruptError } from "./Errors";
+import { SenderAlreadyClosedError, ConnectTimeOutError, UserInteruptError } from "./Errors";
 
 type ResolveFunction = (response: ErrorResponse | Response) => void;
 type RejectFunction = (reason?: any) => void;
@@ -12,14 +12,14 @@ export interface UnfinishJobs {
   reject: RejectFunction;
 }
 
-export default class Sender extends EventEmitter {
+export default abstract class Sender extends EventEmitter {
   serialized: Serialization
   retry_connect_time = 2000;
   connecting = false;
   connected = false;
   buffer_list: UnfinishJobs[] = [];
-  _connect_args = [];
-  _reconnect_timeout = undefined;
+  _connect_args: any[] = [];
+  _reconnect_timeout: NodeJS.Timeout | undefined = undefined;
   _is_close = false;
 
   constructor(serialized: Serialization) {
@@ -27,7 +27,9 @@ export default class Sender extends EventEmitter {
     this.serialized = serialized;
   }
 
-  set_connect_args(...args: any[]) {
+  protected abstract _send_request(data: any): Promise<Response | ErrorResponse>;
+
+  set_connect_args(...args: any[]): void {
     this._connect_args = args;
   }
 
@@ -72,7 +74,7 @@ export default class Sender extends EventEmitter {
     }
   }
 
-  _process_unfinish_job(job: UnfinishJobs) {
+  _process_unfinish_job(job: UnfinishJobs): void {
     this._send_request(job.request).then((data) => {
       try {
         job.resolve(
@@ -88,7 +90,7 @@ export default class Sender extends EventEmitter {
     });
   }
 
-  async connect() {
+  async connect(): Promise<boolean> {
     if (this._is_close) throw new SenderAlreadyClosedError("sender closed");
     if (this._reconnect_timeout) {
       clearTimeout(this._reconnect_timeout);
@@ -122,7 +124,7 @@ export default class Sender extends EventEmitter {
     return this.connected;
   }
 
-  _handle_send_request_error(error: Error, request: any, resolve: ResolveFunction, reject: RejectFunction) {
+  _handle_send_request_error(error: Error, request: any, resolve: ResolveFunction, reject: RejectFunction): void {
     this._set_disconnect(error);
     this.buffer_list.push({ request, resolve, reject });
   }
@@ -151,23 +153,23 @@ export default class Sender extends EventEmitter {
     }
   }
 
-  on_disconnect(funcs: (...args: any[]) => void) {
+  on_disconnect(funcs: (...args: any[]) => void): void {
     this.on("disconnect", funcs);
   }
 
-  on_connect(func: (...args: any[]) => void) {
+  on_connect(func: (...args: any[]) => void): void {
     this.on("connect", func);
   }
 
-  on_connect_error(func: (...args: any[]) => void) {
+  on_connect_error(func: (...args: any[]) => void): void {
     this.on("connect_error", func);
   }
 
-  is_connect() {
+  is_connect(): boolean {
     return this.connected;
   }
 
-  _set_disconnect(error?: Error) {
+  _set_disconnect(error?: Error): void {
     this.emit("connect_error", error);
     if (!this.connected) return;
     this.connected = false;
@@ -178,13 +180,9 @@ export default class Sender extends EventEmitter {
     this.emit("disconnect");
   }
 
-  async _send_request(data: any): Promise<Response | ErrorResponse> {
-    throw new MethodNotImplementError("method not implement");
-  }
-
-  import_jobs(jobs: UnfinishJobs[]) {
+  import_jobs(jobs: UnfinishJobs[]): void {
     if (this._is_close) throw new SenderAlreadyClosedError("call a closed sender");
-    for (var job of jobs) {
+    for (let job of jobs) {
       job.request = this.serialized.encode_request(job.request);
       if (this.connected) {
         this._process_unfinish_job(job);
@@ -198,7 +196,9 @@ export default class Sender extends EventEmitter {
     if (this._is_close) return;
     this._is_close = true;
     this.connected = false;
-    clearTimeout(this._reconnect_timeout);
+    if (this._reconnect_timeout) {
+      clearTimeout(this._reconnect_timeout);
+    }
     this._reconnect_timeout = undefined;
     if (export_buffers) {
       var buffers: UnfinishJobs[] = [];
@@ -212,7 +212,7 @@ export default class Sender extends EventEmitter {
       this.buffer_list = [];
       return buffers;
     }
-    var job = this.buffer_list.shift();
+    let job = this.buffer_list.shift();
     while (job) {
       job.reject(new UserInteruptError("Interrupt by user"));
       job = this.buffer_list.shift();

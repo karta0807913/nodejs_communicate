@@ -20,7 +20,7 @@ abstract class SenderConfigInterface {
 }
 
 abstract class SenderConfig extends SenderConfigInterface {
-  _sender: Sender;
+  _sender: Sender | null = null;
   create() {
     if (!this._sender) {
       this._sender = this._create();
@@ -41,7 +41,7 @@ abstract class ReceiverConfigInterface {
 }
 
 abstract class ReceiverConfig extends ReceiverConfigInterface {
-  _receiver: Receiver;
+  _receiver: Receiver | null = null;
   create() {
     if (!this._receiver) {
       this._receiver = this._create();
@@ -57,8 +57,8 @@ abstract class ReceiverConfig extends ReceiverConfigInterface {
 }
 
 abstract class SRConfig {
-  _receiver: Receiver;
-  _sender: Sender;
+  _receiver: Receiver | null = null;
+  _sender: Sender | null = null;
 
   createReceiver() {
     if (!this._receiver) {
@@ -144,6 +144,10 @@ class ReceiverConfigWrapper extends ReceiverConfigInterface {
   }
 }
 
+export interface RemoteMethods {
+  [key: string]: (...args: any[]) => any;
+}
+
 class CommunicateManager extends EventEmitter {
   _closed: boolean;
   _raw_sender: Sender | SenderConfigInterface | SRConfig;
@@ -194,8 +198,11 @@ class CommunicateManager extends EventEmitter {
     return this.receiver.remove_listener(event_name);
   }
 
-  async init(instance: boolean | Object = false): Promise<any | boolean> {
-    if (this.is_close()) return;
+  async init(): Promise<boolean>;
+  async init(instance: false): Promise<boolean>;
+  async init(instance: true | RemoteMethods): Promise<RemoteMethods | boolean>;
+  async init(instance: boolean | RemoteMethods = false): Promise<RemoteMethods | boolean> {
+    if (this.is_close()) Promise.reject(new Error("Connection Already Closed"));
     await this.receiver.init();
     if (!await this.sender.connect()) {
       return false;
@@ -204,8 +211,8 @@ class CommunicateManager extends EventEmitter {
       if (!(instance instanceof Object)) {
         instance = {};
       }
-      var funcs = await this.send_request("__funcs");
-      for (var func_name of funcs) {
+      let funcs: string[] = await this.send_request("__funcs");
+      for (let func_name of funcs) {
         instance[func_name] = this.send_request.bind(this, func_name);
       }
       return instance;
@@ -244,7 +251,10 @@ class CommunicateManager extends EventEmitter {
   }
 }
 
-function ForkProcess(filename: string, args: readonly string[], options: { env?: {} } = {}) {
+export interface EnvironmentMap {
+  [key: string]: string;
+}
+function ForkProcess(filename: string, args?: readonly string[], options: { env?: EnvironmentMap } = {}) {
   if (!options.env) {
     options.env = {};
   }
@@ -254,7 +264,9 @@ function ForkProcess(filename: string, args: readonly string[], options: { env?:
   return cp.fork(filename, args, options);
 }
 
-function CreateProcessSRConfig(filename: NodeJS.Process | cp.ChildProcess | string, args?: readonly string[], options?: { env?: {} }) {
+function CreateProcessSRConfig(filename: string, args: readonly string[], options?: { env?: EnvironmentMap }): ProcessSRConfig;
+function CreateProcessSRConfig(process: NodeJS.Process | cp.ChildProcess): ProcessSRConfig;
+function CreateProcessSRConfig(filename: NodeJS.Process | cp.ChildProcess | string, args?: readonly string[], options?: { env?: EnvironmentMap }): ProcessSRConfig {
   if (filename instanceof EventEmitter) {
     return new ProcessSRConfig(filename);
   }
