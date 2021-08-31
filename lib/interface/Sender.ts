@@ -176,7 +176,9 @@ export default abstract class Sender extends EventEmitter {
     if (this._reconnect_timeout) {
       clearTimeout(this._reconnect_timeout);
     }
-    this._reconnect_timeout = setTimeout(this.connect.bind(this), this.retry_connect_time);
+    if (!this._is_close) {
+      this._reconnect_timeout = setTimeout(this.connect.bind(this), this.retry_connect_time);
+    }
     this.emit("disconnect");
   }
 
@@ -195,13 +197,13 @@ export default abstract class Sender extends EventEmitter {
   close(export_buffers: boolean = false): UnfinishJobs[] | void {
     if (this._is_close) return;
     this._is_close = true;
-    this.connected = false;
+    this._set_disconnect();
     if (this._reconnect_timeout) {
       clearTimeout(this._reconnect_timeout);
     }
     this._reconnect_timeout = undefined;
     if (export_buffers) {
-      var buffers: UnfinishJobs[] = [];
+      let buffers: UnfinishJobs[] = [];
       for (let job of this.buffer_list) {
         buffers.push({
           request: this.serialized.decode_request(job.request),

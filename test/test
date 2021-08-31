@@ -3,7 +3,7 @@
 for i in $(dirname $0)/*.ts $(dirname $0)/*/;
 do
     echo "start testing $i"
-    ts-node "$i";
+    TS_NODE_CACHE=false ts-node "$i";
     exit_code="$?"
     if [ "$exit_code" -ne 0 ];
     then

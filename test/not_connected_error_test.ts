@@ -29,7 +29,7 @@ async function run() {
   deepStrictEqual(result.name, "Error");
   deepStrictEqual(result.message, "Not Connect");
 
-  await receiver.init();
+  receiver.init();
   connect_result = await sender.connect();
   deepStrictEqual(connect_result, true);
 

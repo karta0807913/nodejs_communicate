@@ -14,6 +14,7 @@
         "noUncheckedIndexedAccess": true,
         "noImplicitOverride": true,
         "noPropertyAccessFromIndexSignature": true,
+        "useUnknownInCatchVariables": false,
         "target": "es6"
     },
     "include": [
